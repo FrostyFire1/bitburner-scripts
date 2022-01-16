@@ -47,7 +47,7 @@ export async function main(ns){
         count >= ns.getServerNumPortsRequired(x))){
             rootServer(server)
         }
-        
+
         let toBackdoor = ["CSEC","avmnite-02h","I.I.I.I","run4theh111z","w0r1d_d43m0n"]
         for(const server of toBackdoor){
             if(ns.hasRootAccess(server) && !ns.getServer(server).backdoorInstalled){
@@ -57,6 +57,20 @@ export async function main(ns){
                 ns.connect("home");
             }
         } 
+        while(ns.getPlayer().money/5 >= ns.getUpgradeHomeRamCost()) ns.upgradeHomeRam();
+
+        let controllers = ["/Sleeve/Manager.js","/Singularity/KarmaFarm.js","/Corporation/Manager.js"].map(x=>{return {
+            name:x,
+            alreadyRan:false,
+        };})
+        for(let controller of controllers){
+            if(!controller.alreadyRan){
+                if(ns.getServerMaxRam("home")-ns.getServerUsedRam("home") > ns.getScriptRam(controller.name)){
+                    ns.run(controller.name);
+                    controller.alreadyRan = true;
+                }
+            }
+        }
 
 
 
