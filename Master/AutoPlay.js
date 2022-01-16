@@ -1,6 +1,13 @@
+import { getServers, rootServer } from "../utils/servers";
+
 let serverList = [];
+let originalTarget = ""
 /** @param {import("../.").NS} ns */
 function connectToServer(ns,target){
+	if(originalTarget == "") {
+		originalTarget = target;
+		serverList.push(target);
+	}
 	const servers = ['home'];
 	if(target == "home") {
 		delete serverList[serverList.length-1];
@@ -25,6 +32,34 @@ function connectToServer(ns,target){
 		}
 	}
 }
+
+/** @param {import("../.").NS} ns */
 export async function main(ns){
-    connectToServer("The-Cave");
+    let porters = ["BruteSSH.exe","FTPCrack.exe","relaySMTP.exe","HTTPWorm.exe","SQLInject.exe"];
+    let count = 0;
+    for(const porter of porters) if(ns.fileExists(porter)) count++;
+	ns.disableLog("ALL");
+
+    while(true){
+
+        for(const server of getServers(ns).filter(x=>!ns.hasRootAccess(x) && 
+        ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(x) &&
+        count >= ns.getServerNumPortsRequired(x))){
+            rootServer(server)
+        }
+        
+        let toBackdoor = ["CSEC","avmnite-02h","I.I.I.I","run4theh111z","w0r1d_d43m0n"]
+        for(const server of toBackdoor){
+            if(ns.hasRootAccess(server) && !ns.getServer(server).backdoorInstalled){
+                connectToServer(ns,server);
+                await ns.installBackdoor();
+                ns.print(`INFO: installed backdoor on ${server}`);
+                ns.connect("home");
+            }
+        } 
+
+
+
+        await ns.sleep(5000);
+    }
 }
