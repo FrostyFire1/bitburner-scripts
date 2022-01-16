@@ -1,5 +1,3 @@
-# Public FrostyFire1 script repo
-
 Here you'll find all scripts i'm currently using. The repository is updated regularly as i optimise my scripts
 
 ## Main script
