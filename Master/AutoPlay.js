@@ -36,12 +36,16 @@ function connectToServer(ns,target){
 /** @param {import("../.").NS} ns */
 export async function main(ns){
     ns.disableLog("ALL");
-    
-	
 
+    let porters = ["BruteSSH.exe","FTPCrack.exe","relaySMTP.exe","HTTPWorm.exe","SQLInject.exe"];
+	let controllers = ["/Sleeve/Manager.js","/Singularity/KarmaFarm.js","/Corporation/Manager.js"].map(x=>{return {
+        name:x,
+        alreadyRan:false,
+    };})
+    let toBackdoor = ["CSEC","avmnite-02h","I.I.I.I","run4theh111z","w0r1d_d43m0n"]
     while(true){
 
-        let porters = ["BruteSSH.exe","FTPCrack.exe","relaySMTP.exe","HTTPWorm.exe","SQLInject.exe"];
+        
         let count = 0;
         for(const porter of porters) if(ns.fileExists(porter)) count++;
         //try to buy darkweb programs
@@ -55,7 +59,6 @@ export async function main(ns){
         }
         
         //backdoor the important servers either to get into the faction  or to end the game
-        let toBackdoor = ["CSEC","avmnite-02h","I.I.I.I","run4theh111z","w0r1d_d43m0n"]
         for(const server of toBackdoor){
             if(ns.hasRootAccess(server) && !ns.getServer(server).backdoorInstalled){
                 connectToServer(ns,server);
@@ -68,19 +71,15 @@ export async function main(ns){
         while(ns.getPlayer().money/5 >= ns.getUpgradeHomeRamCost()) ns.upgradeHomeRam();
 
         //Activate controllers if enough ram is available
-        let controllers = ["/Sleeve/Manager.js","/Singularity/KarmaFarm.js","/Corporation/Manager.js"].map(x=>{return {
-            name:x,
-            alreadyRan:false,
-        };})
         for(let controller of controllers){
             if(controller.alreadyRan) continue;
-            if(ns.getServerMaxRam("home")-ns.getServerUsedRam("home") > ns.getScriptRam(controller.name)){
+            if(ns.getServerMaxRam("home")-ns.getServerUsedRam("home") >= ns.getScriptRam(controller.name)){
                 ns.run(controller.name);
                 controller.alreadyRan = true;
             }
             
         }
-        
+        //Check if can get red pill. If yes install immediately
         if(ns.checkFactionInvitations().includes("Daedalus")) ns.joinFaction("Daedalus");
         if(ns.getPlayer().factions.includes("Daedalus")){
             if(ns.getFactionRep("Daedalus") >= 2.5e6 && !ns.getOwnedAugmentations().includes("The Red Pill")) {
