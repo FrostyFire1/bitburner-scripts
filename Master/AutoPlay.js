@@ -37,8 +37,18 @@ function connectToServer(ns,target){
 export async function main(ns){
     ns.disableLog("ALL");
 
-    let porters = ["BruteSSH.exe","FTPCrack.exe","relaySMTP.exe","HTTPWorm.exe","SQLInject.exe"];
-	let controllers = ["/Contracts/Solver.js","/Sleeve/Manager.js","/Singularity/KarmaFarm.js","/Corporation/Manager.js"].map(x=>{return {
+    let porters = [
+    {name:"BruteSSH.exe", cost:5e5},
+    {name:"FTPCrack.exe",cost:1.5e6},
+    {name:"relaySMTP.exe",cost:5e6},
+    {name:"HTTPWorm.exe",cost:3e7},
+    {name:"SQLInject.exe",cost:2.5e8}];
+	let controllers = [
+    "/Contracts/Solver.js",
+    "/Sleeve/Manager.js",
+    "/Singularity/AugmentInstall",
+    "/Singularity/KarmaFarm.js",
+    "/Corporation/Manager.js"].map(x=>{return {
         name:x,
         alreadyRan:false,
     };})
@@ -47,10 +57,19 @@ export async function main(ns){
 
         
         let count = 0;
-        for(const porter of porters) if(ns.fileExists(porter)) count++;
-        //try to buy darkweb programs
-        if(ns.getPlayer().money > 2e5 && !ns.serverExists("darkweb")) ns.purchaseTor();
-        if(ns.serverExists("darkweb")) for(const porter of porters) if(!ns.fileExists(porter)) ns.purchaseProgram(porter)
+        for(const porter of porters) if(ns.fileExists(porter.name)) count++;
+        //Try to buy TOR
+        if(ns.getPlayer().money > 2e5 && !ns.getPlayer().tor) ns.purchaseTor();
+        //If TOR is bought then try to buy darkweb programs
+        if(ns.getPlayer().tor) {
+            for(const porter of porters) {
+                //Check if you can buy program with 50% of current money
+                if(!ns.fileExists(porter.name)&&ns.getPlayer().money/2 >= porter.cost) {
+                    ns.purchaseProgram(porter.name);
+                    ns.tprintf(`SUCCESS: Purchased ${porter.name}`);
+                }
+            }
+        }
         //Nuke every server you can
         for(const server of getServers(ns).filter(x=>!ns.hasRootAccess(x) && 
         ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(x) && count >= ns.getServerNumPortsRequired(x))){
@@ -74,17 +93,10 @@ export async function main(ns){
             if(controller.alreadyRan) continue;
             if(ns.getServerMaxRam("home")-ns.getServerUsedRam("home") >= ns.getScriptRam(controller.name)){
                 ns.run(controller.name);
+                ns.print(`INFO: Running ${controller.name}`)
                 controller.alreadyRan = true;
             }
             
-        }
-        //Check if can get red pill. If yes install immediately
-        if(ns.checkFactionInvitations().includes("Daedalus")) ns.joinFaction("Daedalus");
-        if(ns.getPlayer().factions.includes("Daedalus")){
-            if(ns.getFactionRep("Daedalus") >= 2.5e6 && !ns.getOwnedAugmentations().includes("The Red Pill")) {
-                ns.purchaseAugmentation("Daedalus","The Red Pill");
-                ns.installAugmentations("/Master/AutoPlay.js")
-            }
         }
         await ns.sleep(5000);
     }
