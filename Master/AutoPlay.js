@@ -38,7 +38,7 @@ export async function main(ns){
     ns.disableLog("ALL");
 
     let porters = ["BruteSSH.exe","FTPCrack.exe","relaySMTP.exe","HTTPWorm.exe","SQLInject.exe"];
-	let controllers = ["/Sleeve/Manager.js","/Singularity/KarmaFarm.js","/Corporation/Manager.js"].map(x=>{return {
+	let controllers = ["/Contracts/Solver.js","/Sleeve/Manager.js","/Singularity/KarmaFarm.js","/Corporation/Manager.js"].map(x=>{return {
         name:x,
         alreadyRan:false,
     };})
@@ -53,8 +53,7 @@ export async function main(ns){
         if(ns.serverExists("darkweb")) for(const porter of porters) if(!ns.fileExists(porter)) ns.purchaseProgram(porter)
         //Nuke every server you can
         for(const server of getServers(ns).filter(x=>!ns.hasRootAccess(x) && 
-        ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(x) &&
-        count >= ns.getServerNumPortsRequired(x))){
+        ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(x) && count >= ns.getServerNumPortsRequired(x))){
             rootServer(server)
         }
         
@@ -87,7 +86,6 @@ export async function main(ns){
                 ns.installAugmentations("/Master/AutoPlay.js")
             }
         }
-
         await ns.sleep(5000);
     }
 }
