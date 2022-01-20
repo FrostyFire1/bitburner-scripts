@@ -71,8 +71,11 @@ export async function main(ns){
             }
         }
         //Nuke every server you can
-        for(const server of getServers(ns).filter(x=>!ns.hasRootAccess(x) && 
-        ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(x) && count >= ns.getServerNumPortsRequired(x))){
+        let nukable = getServers(ns)
+        .filter(x=>!ns.hasRootAccess(x) && 
+        ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(x) && 
+        count >= ns.getServerNumPortsRequired(x))
+        for(const server of nukable){
             rootServer(server)
         }
         
@@ -81,7 +84,7 @@ export async function main(ns){
             if(ns.hasRootAccess(server) && !ns.getServer(server).backdoorInstalled){
                 connectToServer(ns,server);
                 await ns.installBackdoor();
-                ns.print(`INFO: installed backdoor on ${server}`);
+                ns.tprintf(`INFO: installed backdoor on ${server}`);
                 ns.connect("home");
             }
         } 
@@ -93,7 +96,7 @@ export async function main(ns){
             if(controller.alreadyRan) continue;
             if(ns.getServerMaxRam("home")-ns.getServerUsedRam("home") >= ns.getScriptRam(controller.name)){
                 ns.run(controller.name);
-                ns.print(`INFO: Running ${controller.name}`)
+                ns.tprintf(`INFO: Running ${controller.name}`)
                 controller.alreadyRan = true;
             }
             
